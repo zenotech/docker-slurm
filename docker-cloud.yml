@@ -1,0 +1,63 @@
+
+version: '3.1'
+secrets:
+  munge_key:
+      external: true
+
+volumes:
+    mysqlvol:
+
+services:
+  compute:
+      image: compute
+      networks:
+          - compute
+          - storage
+  db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secretpw
+      - MYSQL_PASSWORD=Slurm
+      - MYSQL_USER=slurm
+      - MYSQL_DB=slurm_acct_db
+    networks:
+      - db
+    volumes:
+        - mysqlvol:/var/lib/mysql
+
+  slurmdbd:
+    image: slurm_slurmdbd
+    networks:
+      - db
+      - frontend
+    secrets:
+      - munge_key
+
+  slurmctld:
+    image: slurm_slurmctld
+    networks:
+        - frontend
+        - compute
+    volumes:
+        - /var/spool
+    secrets:
+      - munge_key
+
+
+  login:
+      image: slurm_login
+      networks:
+        - frontend
+        - storage
+      secrets:
+        - munge_key
+
+
+networks:
+  compute:
+  storage:
+  frontend:
+  db:
+    internal: true
+
+

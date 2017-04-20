@@ -1,0 +1,14 @@
+
+version: '3.1'
+services:
+  slurmdbd:
+    build: slurmdbd
+
+  slurmctld:
+    build: slurmctld
+
+  login:
+      build: login
+
+  compute:
+      build: compute
